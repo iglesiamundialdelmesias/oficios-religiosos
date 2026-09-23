@@ -1,0 +1,21 @@
+{
+  "short_name": "OficiosIMMB",
+  "name": "Oficios Religiosos - Iglesia Mundial del Mesías Bolivia",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2913/2913008.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2913/2913008.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#eef7f6",
+  "theme_color": "#2c7a7b",
+  "display": "standalone",
+  "orientation": "portrait"
+}
