@@ -2,713 +2,238 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Oficios Religiosos - IMMB</title>
   <link rel="manifest" href="manifest.json">
-  
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- React, Babel y Supabase CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-    body { background-color: #eef7f6; min-height: 100vh; width: 100vw; overflow-x: hidden; font-size: 16px; }
-    
-    .phone-frame { 
-      width: 100%; 
-      min-height: 100vh; 
-      background-color: #eef7f6; 
-      padding: 16px; 
-      padding-bottom: 110px; 
-      position: relative; 
-    }
-    
-    .title { text-align: center; font-size: 20px; color: #1a365d; margin-bottom: 4px; font-weight: bold; }
-    .subtitle { text-align: center; font-size: 14px; color: #2c7a7b; margin-bottom: 18px; font-weight: 600; }
-    .user-card { background-color: #ffffff; border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; box-shadow: 0 3px 10px rgba(0,0,0,0.06); border: 1px solid #cbd5e0; }
-    .section-title { font-size: 15px; font-weight: bold; color: #2d3748; margin-bottom: 12px; text-transform: uppercase; margin-top: 18px; letter-spacing: 0.5px; }
-    
-    .card { background-color: #ffffff; border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 3px 10px rgba(0,0,0,0.06); border: 1px solid #cbd5e0; }
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .bold-text { font-weight: bold; font-size: 20px; color: #1a202c; margin-top: 6px; }
-    
-    .label { font-size: 14px; color: #4a5568; font-weight: 600; }
-    .badge-yellow { background-color: #fefcbf; color: #744210; padding: 6px 12px; border-radius: 14px; font-size: 14px; font-weight: bold; border: 1px solid #d69e2e; }
-    .badge-green { background-color: #c6f6d5; color: #1c4532; padding: 6px 12px; border-radius: 14px; font-size: 14px; font-weight: bold; border: 1px solid #38a169; }
-    .badge-oficio { background-color: #e2e8f0; color: #2d3748; padding: 4px 10px; border-radius: 10px; font-size: 13px; font-weight: bold; display: inline-block; margin-top: 4px; }
-    
-    .card-grid { display: grid; grid-template-columns: 1fr; gap: 10px; font-size: 16px; color: #2d3748; margin-bottom: 14px; margin-top: 10px; }
-    
-    .btn-primary { background-color: #2c7a7b; color: white; border: none; min-height: 54px; padding: 14px; border-radius: 16px; font-size: 18px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 12px; box-shadow: 0 4px 12px rgba(44,122,123,0.3); }
-    .btn-pdf-gen { background-color: #2b6cb0; color: white; border: none; min-height: 48px; padding: 12px; border-radius: 14px; font-size: 16px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(43,108,176,0.3); }
-    .btn-danger { background-color: #e53e3e; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: bold; }
-    .btn-edit { background-color: #3182ce; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: bold; margin-right: 8px; }
-    .btn-pdf-single { background-color: #38a169; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: bold; margin-right: 8px; }
-    .btn-back { background-color: #edf2f7; color: #2c7a7b; border: 1px solid #cbd5e0; padding: 10px 16px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 16px; display: inline-block; }
-    .fab { background-color: #2c7a7b; color: white; border: none; min-height: 56px; padding: 16px; border-radius: 18px; font-size: 19px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 16px; box-shadow: 0 4px 12px rgba(44,122,123,0.3); }
-    
-    .nav-bar { display: flex; justify-content: space-around; background-color: #ffffff; border-radius: 22px; padding: 14px; position: fixed; bottom: 14px; left: 16px; right: 16px; font-size: 15px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.15); z-index: 100; border: 1px solid #e2e8f0; }
-    .nav-item-active { color: #2c7a7b; font-weight: bold; cursor: pointer; }
-    .nav-item { color: #718096; cursor: pointer; }
-    
-    .input-field { width: 100%; min-height: 52px; padding: 12px 16px; border-radius: 14px; border: 2px solid #cbd5e0; font-size: 17px; margin-bottom: 14px; background-color: #fff; color: #1a202c; }
-    .input-field:focus { border-color: #2c7a7b; outline: none; }
-    .search-box { border-color: #2c7a7b; background-color: #f7fafc; }
-    
-    .login-box { background: white; padding: 28px; border-radius: 22px; margin-top: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e0; }
-    .actions-row { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 12px; border-top: 2px solid #edf2f7; padding-top: 12px; }
-    .info-box { background-color: #e6fffa; border: 1px solid #b2f5ea; padding: 12px; border-radius: 12px; font-size: 15px; color: #234e52; margin-top: 8px; }
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 15px; color: #333; }
+    .container { max-width: 650px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .nav-bar { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; gap: 5px; }
+    .nav-btn { background: none; border: none; font-size: 15px; font-weight: bold; color: #555; cursor: pointer; padding: 8px; }
+    .nav-btn.active { color: #0f4c5c; border-bottom: 3px solid #0f4c5c; }
+    .card { background: #fafafa; border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+    .label { font-weight: bold; display: block; margin-top: 10px; font-size: 14px; }
+    .input-field { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-primary { width: 100%; padding: 10px; background-color: #0f4c5c; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 15px; }
+    .btn-primary:hover { background-color: #0b3844; }
+    .section-title { color: #0f4c5c; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 20px; }
+    .header-user { display: flex; justify-content: space-between; align-items: center; background: #eef2f3; padding: 10px; border-radius: 6px; margin-bottom: 15px; }
   </style>
 </head>
 <body>
-
   <div id="root">Cargando aplicación...</div>
 
   <script type="text/babel">
     var SUPABASE_URL = 'https://pyijfvcpdvibocatstak.supabase.co';
-    var SUPABASE_ANON_KEY = 'sb_publishable_3aLRXF3ttPSb5WZM6p8vcw_hn1na3U1';
+    var SUPABASE_KEY = 'sb_publishable_3aLRXF3ttPSb5WZM6p8vcw_hn1na3U1';
     
-    var supabaseClient = null;
-    if (window.supabase && window.supabase.createClient) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
+    var supabaseClient = (window.supabase && window.supabase.createClient) 
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) 
+      : null;
 
-    function calcularProximoCulto(fechaFallecimiento, tipoOficio) {
-      if (!fechaFallecimiento) return { fecha: 'N/A', detalle: 'Sin fecha' };
-
-      var parts = fechaFallecimiento.split('-');
-      if (parts.length < 3) return { fecha: 'N/A', detalle: 'Sin fecha' };
-
-      var year = parseInt(parts[0], 10);
-      var month = parseInt(parts[1], 10);
-      var day = parseInt(parts[2], 10);
-
-      var hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-
-      var fechaFall = new Date(year, month - 1, day);
-      fechaFall.setHours(0, 0, 0, 0);
-
-      if (tipoOficio === 'Shinrei Saishi') {
-        var hitosDias = [10, 20, 30, 40, 50];
-        for (var i = 0; i < hitosDias.length; i++) {
-          var dias = hitosDias[i];
-          var fechaHito = new Date(fechaFall);
-          fechaHito.setDate(fechaHito.getDate() + dias);
-          
-          if (fechaHito >= hoy) {
-            var yyyy = fechaHito.getFullYear();
-            var mm = String(fechaHito.getMonth() + 1).padStart(2, '0');
-            var dd = String(fechaHito.getDate()).padStart(2, '0');
-            return {
-              fecha: yyyy + '-' + mm + '-' + dd,
-              detalle: 'Oración Día ' + dias + ' de Elevación Espiritual',
-              esHoy: fechaHito.getTime() === hoy.getTime()
-            };
-          }
-        }
-      }
-
-      var proximoAniversario = new Date(hoy.getFullYear(), month - 1, day);
-      if (proximoAniversario < hoy) {
-        proximoAniversario.setFullYear(hoy.getFullYear() + 1);
-      }
-
-      var yyyyA = proximoAniversario.getFullYear();
-      var mmA = String(proximoAniversario.getMonth() + 1).padStart(2, '0');
-      var ddA = String(proximoAniversario.getDate()).padStart(2, '0');
-
-      return {
-        fecha: yyyyA + '-' + mmA + '-' + ddA,
-        detalle: 'Culto de Aniversario de Fallecimiento (Nensai)',
-        esHoy: proximoAniversario.getTime() === hoy.getTime()
-      };
-    }
-
-    function App() {
-      var stateUsuario = React.useState(null);
-      var usuarioSesion = stateUsuario[0];
-      var setUsuarioSesion = stateUsuario[1];
-
-      var stateVista = React.useState('inicio');
-      var vista = stateVista[0];
-      var setVista = stateVista[1];
-
-      var stateSol = React.useState([]);
-      var solicitudes = stateSol[0];
-      var setSolicitudes = stateSol[1];
-
-      var stateIgl = React.useState([]);
-      var iglesias = stateIgl[0];
-      var setIglesias = stateIgl[1];
-
-      var stateLoad = React.useState(false);
-      var loading = stateLoad[0];
-      var setLoading = stateLoad[1];
-
-      var stateEdit = React.useState(null);
-      var editandoRegistro = stateEdit[0];
-      var setEditandoRegistro = stateEdit[1];
-
-      var stateBusq = React.useState('');
-      var busqueda = stateBusq[0];
-      var setBusqueda = stateBusq[1];
-
-      var stateUser = React.useState('');
-      var userInput = stateUser[0];
-      var setUserInput = stateUser[1];
-
-      var statePass = React.useState('');
-      var passInput = statePass[0];
-      var setPassInput = statePass[1];
-
-      React.useEffect(function() {
-        if (usuarioSesion && supabaseClient) {
-          cargarDatos();
-          cargarIglesias();
-        }
-      }, [usuarioSesion]);
+    function Login(props) {
+      var setUsuario = props.setUsuario;
+      var sUser = React.useState(''); var user = sUser[0]; var setUser = sUser;
+      var sPass = React.useState(''); var pass = sPass[0]; var setPass = sPass;
 
       function iniciarSesion(e) {
         e.preventDefault();
-        setLoading(true);
-        if (!supabaseClient) {
-          alert('Conectando a la base de datos... Reintente en un momento.');
-          setLoading(false);
-          return;
-        }
+        if (!supabaseClient) return;
+
         supabaseClient
           .from('usuarios_sistema')
-          .select('*, iglesias(nombre)')
-          .eq('usuario', userInput.trim())
-          .eq('password', passInput.trim())
+          .select('*')
+          .eq('usuario', user.trim())
+          .eq('password', pass.trim())
           .single()
           .then(function(res) {
             if (res.data) {
-              setUsuarioSesion(res.data);
+              setUsuario(res.data);
             } else {
               alert('Usuario o contraseña incorrectos');
             }
-            setLoading(false);
           })
           .catch(function(err) {
-            alert('Error al iniciar sesión: ' + err.message);
-            setLoading(false);
+            alert('Error al conectar: ' + err.message);
           });
-      }
-
-      function cargarIglesias() {
-        if (!supabaseClient) return;
-        supabaseClient.from('iglesias').select('*').order('nombre').then(function(res) {
-          if (res.data) setIglesias(res.data);
-        });
-      }
-
-      function cargarDatos() {
-        if (!supabaseClient) return;
-        setLoading(true);
-        var query = supabaseClient
-          .from('solicitudes_culto')
-          .select('id, estado_sorei_saishi, fecha_registro, tipo_oficio, iglesia_id, iglesias(nombre), antepasados(id, nombre_fallecido, fecha_fallecimiento, edad_fallecimiento, linaje, tipo_antepasado, solicitantes(id, nombre_completo, fecha_nacimiento, tipo_persona))')
-          .order('id', { ascending: false });
-
-        if (usuarioSesion.rol !== 'administrador') {
-          query = query.eq('iglesia_id', usuarioSesion.iglesia_id);
-        }
-
-        query.then(function(res) {
-          if (res.data) setSolicitudes(res.data);
-          setLoading(false);
-        });
-      }
-
-      function eliminarSolicitud(id) {
-        if (window.confirm('¿Está seguro de eliminar este registro?')) {
-          supabaseClient.from('solicitudes_culto').delete().eq('id', id).then(function() {
-            cargarDatos();
-          });
-        }
-      }
-
-      function exportarPDFGeneral(datosAExportar) {
-        if (!window.jspdf) { alert('Cargando librería PDF...'); return; }
-        var jsPDF = window.jspdf.jsPDF;
-        var doc = new jsPDF();
-
-        doc.setFontSize(15);
-        doc.text("IGLESIA MUNDIAL DEL MESÍAS BOLIVIA - SEDE NACIONAL", 14, 15);
-        doc.setFontSize(11);
-        doc.text("División de Liturgia - Reporte de Oficios Religiosos", 14, 22);
-        doc.text("Generado por: " + usuarioSesion.nombre, 14, 28);
-        doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 34);
-
-        var tableColumn = ["Iglesia", "Oficio", "Solicitante", "Antepasado", "Condición", "Próxima Fecha"];
-        var tableRows = [];
-
-        datosAExportar.forEach(function(item) {
-          var ant = item.antepasados || {};
-          var sol = ant.solicitantes || {};
-          var igl = item.iglesias || {};
-          var infoCulto = calcularProximoCulto(ant.fecha_fallecimiento, item.tipo_oficio);
-          
-          tableRows.push([
-            igl.nombre || 'N/A',
-            item.tipo_oficio || 'Sorei Saishi',
-            sol.nombre_completo || 'N/A',
-            ant.nombre_fallecido || 'N/A',
-            ant.tipo_antepasado || 'Miembro',
-            infoCulto.fecha + "\n(" + infoCulto.detalle + ")"
-          ]);
-        });
-
-        doc.autoTable({
-          head: [tableColumn],
-          body: tableRows,
-          startY: 40,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [44, 122, 123] }
-        });
-
-        doc.save("Oficios_IMMB_" + new Date().toISOString().slice(0,10) + ".pdf");
-      }
-
-      function exportarPDFIndividual(item) {
-        if (!window.jspdf) { alert('Cargando librería PDF...'); return; }
-        var jsPDF = window.jspdf.jsPDF;
-        var doc = new jsPDF();
-        
-        var ant = item.antepasados || {};
-        var sol = ant.solicitantes || {};
-        var igl = item.iglesias || {};
-        var infoCulto = calcularProximoCulto(ant.fecha_fallecimiento, item.tipo_oficio);
-
-        doc.setFontSize(16);
-        doc.setTextColor(26, 54, 93);
-        doc.text("IGLESIA MUNDIAL DEL MESÍAS BOLIVIA", 105, 18, null, null, "center");
-        doc.setFontSize(12);
-        doc.text("Sede Nacional - División de Liturgia", 105, 25, null, null, "center");
-        doc.setFontSize(13);
-        doc.text("Formulario de Solicitud de " + (item.tipo_oficio || 'Sorei Saishi'), 105, 32, null, null, "center");
-        
-        doc.setLineWidth(0.5);
-        doc.line(14, 36, 196, 36);
-
-        doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
-        
-        var y = 46;
-        doc.setFont(undefined, 'bold');
-        doc.text("DATOS DE LA UNIDAD RELIGIOSA:", 14, y);
-        doc.setFont(undefined, 'normal');
-        y += 7;
-        doc.text("Iglesia Solicitante: " + (igl.nombre || 'N/A'), 14, y);
-        y += 6;
-        doc.text("Fecha de Registro: " + (item.fecha_registro ? new Date(item.fecha_registro).toLocaleString() : 'N/A'), 14, y);
-
-        y += 11;
-        doc.setFont(undefined, 'bold');
-        doc.text("DATOS DEL SOLICITANTE:", 14, y);
-        doc.setFont(undefined, 'normal');
-        y += 7;
-        doc.text("Nombre Completo: " + (sol.nombre_completo || ''), 14, y);
-        y += 6;
-        doc.text("Fecha de Nacimiento: " + (sol.fecha_nacimiento || ''), 14, y);
-        y += 6;
-        doc.text("Condición: Miembro", 14, y);
-
-        y += 11;
-        doc.setFont(undefined, 'bold');
-        doc.text("DATOS DEL ESPÍRITU / ANTEPASADO:", 14, y);
-        doc.setFont(undefined, 'normal');
-        y += 7;
-        doc.text("Nombre del Fallecido: " + (ant.nombre_fallecido || ''), 14, y);
-        y += 6;
-        doc.text("Fecha de Fallecimiento: " + (ant.fecha_fallecimiento || ''), 14, y);
-        y += 6;
-        doc.text("Edad al Fallecer: " + (ant.edad_fallecimiento || '') + " años", 14, y);
-        y += 6;
-        doc.text("Condición del Antepasado: " + (ant.tipo_antepasado || 'Miembro'), 14, y);
-        y += 6;
-        doc.text("Linaje (Familia/Paterno/Esposo): " + (ant.linaje || ''), 14, y);
-
-        y += 12;
-        doc.setFillColor(238, 247, 246);
-        doc.rect(14, y, 182, 22, 'F');
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(44, 122, 123);
-        doc.text("CÓMPUTO AUTOMÁTICO DE OFICIO / ORACIÓN:", 18, y + 8);
-        doc.setFontSize(10);
-        doc.text("Próxima Fecha: " + infoCulto.fecha + " - (" + infoCulto.detalle + ")", 18, y + 16);
-
-        var safeName = ant.nombre_fallecido ? ant.nombre_fallecido.replace(/\s+/g, '_') : 'fallecido';
-        doc.save("Ficha_" + safeName + ".pdf");
-      }
-
-      var solicitudesFiltradas = solicitudes.filter(function(item) {
-        var texto = busqueda.toLowerCase();
-        var ant = item.antepasados || {};
-        var sol = ant.solicitantes || {};
-        var solNombre = (sol.nombre_completo || '').toLowerCase();
-        var antNombre = (ant.nombre_fallecido || '').toLowerCase();
-        return solNombre.indexOf(texto) !== -1 || antNombre.indexOf(texto) !== -1;
-      });
-
-      if (!usuarioSesion) {
-        return (
-          <div className="phone-frame">
-            <h2 className="title" style={{ marginTop: '10px', fontSize: '22px' }}>Iglesia Mundial del Mesías</h2>
-            <div className="subtitle">Bolivia - Sede Nacional</div>
-            <div className="login-box">
-              <h3 style={{ fontSize: '18px', marginBottom: '18px', textAlign: 'center', color: '#1a365d' }}>Acceso a Liturgia</h3>
-              <form onSubmit={iniciarSesion}>
-                <span className="label">Usuario:</span>
-                <input className="input-field" placeholder="Escriba su usuario" value={userInput} onChange={function(e){ setUserInput(e.target.value); }} required />
-                
-                <span className="label">Contraseña:</span>
-                <input className="input-field" type="password" placeholder="Escriba su contraseña" value={passInput} onChange={function(e){ setPassInput(e.target.value); }} required />
-                
-                <button className="btn-primary" type="submit" disabled={loading}>
-                  {loading ? 'Verificando...' : 'INGRESAR'}
-                </button>
-              </form>
-            </div>
-          </div>
-        );
       }
 
       return (
-        <div className="phone-frame">
-          <h2 className="title">Iglesia Mundial del Mesías</h2>
-          <div className="subtitle">Bolivia - División de Liturgia</div>
-
-          <div className="user-card">
-            <div>
-              <span style={{ fontSize: '13px', color: '#4a5568', fontWeight: 'bold' }}>
-                {usuarioSesion.rol === 'administrador' ? 'ADMINISTRADOR GENERAL' : 'RESPONSABLE LOCAL'}
-              </span>
-              <div style={{ fontWeight: 'bold', color: '#1a365d', fontSize: '17px', marginTop: '4px' }}>
-                {usuarioSesion.nombre} <br/>
-                <span style={{ fontSize: '14px', color: '#2c7a7b' }}>
-                  ({(usuarioSesion.iglesias && usuarioSesion.iglesias.nombre) ? usuarioSesion.iglesias.nombre : 'Todas las Iglesias'})
-                </span>
-              </div>
-            </div>
-            <button className="btn-danger" onClick={function(){ setUsuarioSesion(null); }}>Salir</button>
-          </div>
-
-          {vista === 'inicio' && (
-            <div>
-              <h3 className="section-title">
-                {usuarioSesion.rol === 'administrador' ? 'REPORTE GENERAL (TODAS LAS IGLESIAS)' : 'SOLICITUDES LOCALES'}
-              </h3>
-
-              <input 
-                className="input-field search-box" 
-                placeholder="🔍 Buscar por Solicitante o Antepasado..." 
-                value={busqueda} 
-                onChange={function(e){ setBusqueda(e.target.value); }} 
-              />
-
-              <button className="btn-pdf-gen" onClick={function(){ exportarPDFGeneral(solicitudesFiltradas); }}>
-                📥 Descargar Reporte Completo PDF ({solicitudesFiltradas.length})
-              </button>
-
-              {loading ? <p style={{ fontSize: '16px', margin: '15px 0' }}>Cargando registros...</p> : solicitudesFiltradas.map(function(item) {
-                var ant = item.antepasados || {};
-                var sol = ant.solicitantes || {};
-                var igl = item.iglesias || {};
-                var infoCulto = calcularProximoCulto(ant.fecha_fallecimiento, item.tipo_oficio);
-
-                return (
-                  <div key={item.id} className="card">
-                    <div className="card-header">
-                      <div>
-                        <span className="label">Iglesia: <strong>{igl.nombre || 'N/A'}</strong></span>
-                        <div className="bold-text">{ant.nombre_fallecido}</div>
-                        <span className="badge-oficio">Oficio: {item.tipo_oficio || 'Sorei Saishi'}</span>
-                      </div>
-                      <span className={item.estado_sorei_saishi === 'Pendiente Local' ? 'badge-yellow' : 'badge-green'}>
-                        {item.estado_sorei_saishi}
-                      </span>
-                    </div>
-                    
-                    <div className="card-grid">
-                      <div><span className="label">Condición Antepasado:</span><br/><strong>{ant.tipo_antepasado || 'Miembro'}</strong></div>
-                      <div><span className="label">Linaje / Familia:</span><br/><strong>{ant.linaje}</strong></div>
-                      <div><span className="label">Fecha Fallecimiento:</span><br/><strong>{ant.fecha_fallecimiento}</strong></div>
-                      <div><span className="label">Solicitante (Miembro):</span><br/><strong>{sol.nombre_completo}</strong></div>
-                      <div><span className="label">Fecha Registro:</span><br/><strong>{item.fecha_registro ? new Date(item.fecha_registro).toLocaleDateString() : 'N/A'}</strong></div>
-                    </div>
-
-                    <div className="info-box">
-                      <strong>📅 Próxima Oración / Culto:</strong> <br/>
-                      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a365d' }}>{infoCulto.fecha}</span> <br/>
-                      <span style={{ fontSize: '14px', color: '#2c7a7b', fontWeight: '600' }}>({infoCulto.detalle})</span>
-                    </div>
-
-                    <div className="actions-row">
-                      <button className="btn-pdf-single" onClick={function(){ exportarPDFIndividual(item); }}>📄 PDF Ficha</button>
-                      <button className="btn-edit" onClick={function(){ setEditandoRegistro(item); setVista('nuevo'); }}>✏️ Editar</button>
-                      {usuarioSesion.rol === 'administrador' && (
-                        <button className="btn-danger" onClick={function(){ eliminarSolicitud(item.id); }}>🗑️ Eliminar</button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-
-              <button className="fab" onClick={function(){ setEditandoRegistro(null); setVista('nuevo'); }}>
-                ➕ NUEVA SOLICITUD DE OFICIO
-              </button>
-            </div>
-          )}
-
-          {vista === 'nuevo' && (
-            <Formulario 
-              usuarioSesion={usuarioSesion} 
-              iglesias={iglesias} 
-              editando={editandoRegistro}
-              alFinalizar={function(){ setVista('inicio'); cargarDatos(); }} 
-            />
-          )}
-
-          {vista === 'admin_gestion' && usuarioSesion.rol === 'administrador' && (
-            <GestionAdmin iglesias={iglesias} alActualizar={cargarIglesias} />
-          )}
-
-          <div className="nav-bar">
-            <div className={vista === 'inicio' ? 'nav-item-active' : 'nav-item'} onClick={function(){ setVista('inicio'); }}>🏠<br/><strong>Inicio</strong></div>
-            {usuarioSesion.rol === 'administrador' && (
-              <div className={vista === 'admin_gestion' ? 'nav-item-active' : 'nav-item'} onClick={function(){ setVista('admin_gestion'); }}>⚙️<br/><strong>Administración</strong></div>
-            )}
-          </div>
+        <div className="container">
+          <h2>Iglesia Mundial del Mesías Bolivia</h2>
+          <h3>Control Administrativo y Oficios Religiosos</h3>
+          <form onSubmit={iniciarSesion} className="card">
+            <span className="label">Usuario:</span>
+            <input className="input-field" value={user} onChange={function(e){ setUser(e.target.value); }} required />
+            <span className="label">Contraseña:</span>
+            <input className="input-field" type="password" value={pass} onChange={function(e){ setPass(e.target.value); }} required />
+            <button className="btn-primary" type="submit">Ingresar al Sistema</button>
+          </form>
         </div>
       );
     }
 
-    function Formulario(props) {
-      var usuarioSesion = props.usuarioSesion;
+    function FormularioSolicitud(props) {
+      var usuario = props.usuario;
       var iglesias = props.iglesias;
-      var editando = props.editando;
-      var alFinalizar = props.alFinalizar;
 
-      var antEdit = (editando && editando.antepasados) ? editando.antepasados : {};
-      var solEdit = antEdit.solicitantes || {};
-
-      var sNombreSol = React.useState(solEdit.nombre_completo || '');
-      var nombreSol = sNombreSol[0]; var setNombreSol = sNombreSol[1];
-
-      var sFechaNacSol = React.useState(solEdit.fecha_nacimiento || '');
-      var fechaNacSol = sFechaNacSol[0]; var setFechaNacSol = sFechaNacSol[1];
-
-      var sNombreFall = React.useState(antEdit.nombre_fallecido || '');
-      var nombreFall = sNombreFall[0]; var setNombreFall = sNombreFall[1];
-
-      var sFechaFall = React.useState(antEdit.fecha_fallecimiento || '');
-      var fechaFall = sFechaFall[0]; var setFechaFall = sFechaFall[1];
-
-      var sEdadFall = React.useState(antEdit.edad_fallecimiento || '');
-      var edadFall = sEdadFall[0]; var setEdadFall = sEdadFall[1];
-
-      var sLinaje = React.useState(antEdit.linaje || '');
-      var linaje = sLinaje[0]; var setLinaje = sLinaje[1];
-
-      var sTipoAntepasado = React.useState(antEdit.tipo_antepasado || 'Miembro');
-      var tipoAntepasado = sTipoAntepasado[0]; var setTipoAntepasado = sTipoAntepasado[1];
-
-      var sTipoOficio = React.useState((editando && editando.tipo_oficio) || 'Sorei Saishi');
-      var tipoOficio = sTipoOficio[0]; var setTipoOficio = sTipoOficio[1];
-
-      var initialIgl = (editando && editando.iglesia_id) || usuarioSesion.iglesia_id || (iglesias[0] ? iglesias[0].id : '');
-      var sIglesiaId = React.useState(initialIgl);
-      var iglesiaId = sIglesiaId[0]; var setIglesiaId = sIglesiaId[1];
-
-      var sGuardando = React.useState(false);
-      var guardando = sGuardando[0]; var setGuardando = sGuardando[1];
+      var sSolicitante = React.useState(''); var solicitante = sSolicitante[0]; var setSolicitante = sSolicitante;
+      var sAntepasados = React.useState(''); var antepasados = sAntepasados[0]; var setAntepasados = sAntepasados;
+      var sTipo = React.useState('Culto de Gratitud'); var tipo = sTipo[0]; var setTipo = sTipo;
+      var sIgl = React.useState(usuario.iglesia_id || (iglesias[0] && iglesias[0].id) || ''); var iglesiaId = sIgl[0]; var setIglesiaId = sIgl;
 
       function guardar(e) {
         e.preventDefault();
         if (!supabaseClient) return;
-        setGuardando(true);
 
-        if (editando) {
-          supabaseClient.from('solicitantes').update({
-            nombre_completo: nombreSol,
-            fecha_nacimiento: fechaNacSol,
-            tipo_persona: 'Miembro'
-          }).eq('id', solEdit.id)
-          .then(function() {
-            return supabaseClient.from('antepasados').update({
-              nombre_fallecido: nombreFall,
-              fecha_fallecimiento: fechaFall,
-              edad_fallecimiento: parseInt(edadFall, 10),
-              linaje: linaje,
-              tipo_antepasado: tipoAntepasado
-            }).eq('id', antEdit.id);
-          })
-          .then(function() {
-            return supabaseClient.from('solicitudes_culto').update({
-              iglesia_id: iglesiaId,
-              tipo_oficio: tipoOficio
-            }).eq('id', editando.id);
-          })
-          .then(function() {
-            alert('Solicitud actualizada correctamente');
-            setGuardando(false);
-            alFinalizar();
-          })
-          .catch(function(err) {
-            alert('Error: ' + err.message);
-            setGuardando(false);
-          });
-        } else {
-          supabaseClient.from('solicitantes').insert([{
-            nombre_completo: nombreSol,
-            fecha_nacimiento: fechaNacSol,
-            tipo_persona: 'Miembro'
-          }]).select().single()
-          .then(function(resSol) {
-            return supabaseClient.from('antepasados').insert([{
-              solicitante_id: resSol.data.id,
-              nombre_fallecido: nombreFall,
-              fecha_fallecimiento: fechaFall,
-              edad_fallecimiento: parseInt(edadFall, 10),
-              linaje: linaje,
-              tipo_antepasado: tipoAntepasado
-            }]).select().single();
-          })
-          .then(function(resAnt) {
-            return supabaseClient.from('solicitudes_culto').insert([{
-              antepasado_id: resAnt.data.id,
-              iglesia_id: usuarioSesion.rol === 'administrador' ? iglesiaId : usuarioSesion.iglesia_id,
-              estado_sorei_saishi: 'Pendiente Local',
-              tipo_oficio: tipoOficio,
-              fecha_registro: new Date().toISOString()
-            }]);
-          })
-          .then(function() {
-            alert('Solicitud registrada con éxito');
-            setGuardando(false);
-            alFinalizar();
-          })
-          .catch(function(err) {
-            alert('Error: ' + err.message);
-            setGuardando(false);
-          });
-        }
+        supabaseClient.from('solicitudes_culto').insert([{
+          solicitante: solicitante.trim(),
+          antepasados: antepasados.trim(),
+          tipo_oficio: tipo,
+          iglesia_id: iglesiaId
+        }]).then(function(res) {
+          if (res.error) {
+            alert('Error al registrar la solicitud: ' + res.error.message);
+          } else {
+            alert('Solicitud registrada exitosamente');
+            setSolicitante('');
+            setAntepasados('');
+          }
+        });
       }
 
       return (
-        <form onSubmit={guardar}>
-          <button type="button" className="btn-back" onClick={alFinalizar}>← VOLVER ATRÁS</button>
+        <form onSubmit={guardar} className="card">
+          <h3>Nueva Solicitud de Oficio Religioso</h3>
           
-          <h3 style={{ fontSize: '20px', color: '#1a365d', marginBottom: '16px', fontWeight: 'bold' }}>
-            {editando ? 'Editar Solicitud' : 'Nueva Solicitud de Oficio'}
-          </h3>
+          <span className="label">Solicitante:</span>
+          <input className="input-field" placeholder="Nombre completo del solicitante" value={solicitante} onChange={function(e){ setSolicitante(e.target.value); }} required />
 
-          <div style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', marginBottom: '16px', border: '1px solid #cbd5e0' }}>
-            <span className="label">Tipo de Oficio Religioso:</span>
-            <select className="input-field" value={tipoOficio} onChange={function(e){ setTipoOficio(e.target.value); }}>
-              <option value="Sorei Saishi">Sorei Saishi (Asentamiento y Sagración)</option>
-              <option value="Shinrei Saishi">Shinrei Saishi (Persona Recién Fallecida - 0 a 50 días)</option>
-              <option value="Nensai">Nensai (Aniversario de Fallecimiento)</option>
-              <option value="Ireisai">Ireisai (Sufragio de los Espíritus)</option>
-              <option value="Eidai Saishi">Eidai Saishi (Sufragio Perpetuo)</option>
-            </select>
+          <span className="label">Antepasados / Intención:</span>
+          <textarea className="input-field" rows="3" placeholder="Detalle de antepasados o intenciones del culto" value={antepasados} onChange={function(e){ setAntepasados(e.target.value); }} required></textarea>
 
-            {usuarioSesion.rol === 'administrador' && (
-              <div>
-                <span className="label">Iglesia Solicitante:</span>
-                <select className="input-field" value={iglesiaId} onChange={function(e){ setIglesiaId(e.target.value); }}>
-                  {iglesias.map(function(i){ return <option key={i.id} value={i.id}>{i.nombre}</option>; })}
-                </select>
-              </div>
-            )}
-          </div>
+          <span className="label">Tipo de Oficio:</span>
+          <select className="input-field" value={tipo} onChange={function(e){ setTipo(e.target.value); }}>
+            <option value="Culto de Gratitud">Culto de Gratitud</option>
+            <option value="Suplicación Escrita">Suplicación Escrita</option>
+            <option value="Culto Mensual">Culto Mensual</option>
+            <option value="Oficio Especial">Oficio Especial</option>
+          </select>
 
-          <div style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', marginBottom: '16px', border: '1px solid #cbd5e0' }}>
-            <h4 style={{ fontSize: '17px', color: '#2c7a7b', marginBottom: '12px' }}>👤 Datos del Solicitante (Miembro)</h4>
-            
-            <span className="label">Nombre Completo del Solicitante:</span>
-            <input className="input-field" placeholder="Ej: Juan Pérez" value={nombreSol} onChange={function(e){ setNombreSol(e.target.value); }} required />
-            
-            <span className="label">Fecha de Nacimiento del Solicitante:</span>
-            <input className="input-field" type="date" value={fechaNacSol} onChange={function(e){ setFechaNacSol(e.target.value); }} required />
-          </div>
+          <span className="label">Iglesia Asignada:</span>
+          <select className="input-field" value={iglesiaId} onChange={function(e){ setIglesiaId(e.target.value); }} disabled={usuario.rol !== 'administrador'}>
+            {iglesias.map(function(i) {
+              return <option key={i.id} value={i.id}>{i.nombre}</option>;
+            })}
+          </select>
 
-          <div style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '16px', marginBottom: '16px', border: '1px solid #cbd5e0' }}>
-            <h4 style={{ fontSize: '17px', color: '#2c7a7b', marginBottom: '12px' }}>🕊️ Datos del Espíritu / Antepasado</h4>
-            
-            <span className="label">Nombre del Fallecido:</span>
-            <input className="input-field" placeholder="Ej: María López" value={nombreFall} onChange={function(e){ setNombreFall(e.target.value); }} required />
-            
-            <span className="label">Fecha de Fallecimiento:</span>
-            <input className="input-field" type="date" value={fechaFall} onChange={function(e){ setFechaFall(e.target.value); }} required />
-            
-            <span className="label">Edad al Fallecer:</span>
-            <input className="input-field" type="number" placeholder="Ej: 75" value={edadFall} onChange={function(e){ setEdadFall(e.target.value); }} required />
-
-            <span className="label">Condición del Antepasado:</span>
-            <select className="input-field" value={tipoAntepasado} onChange={function(e){ setTipoAntepasado(e.target.value); }}>
-              <option value="Miembro">Miembro</option>
-              <option value="Frecuentador">Frecuentador</option>
-            </select>
-
-            <span className="label">Linaje (Paterno / Esposo / Familia):</span>
-            <input className="input-field" placeholder="Ej: Familia Pérez / López" value={linaje} onChange={function(e){ setLinaje(e.target.value); }} required />
-          </div>
-
-          <button className="btn-primary" type="submit" disabled={guardando}>
-            {guardando ? 'Guardando...' : (editando ? 'GUARDAR CAMBIOS' : 'REGISTRAR SOLICITUD')}
-          </button>
+          <button className="btn-primary" type="submit">Registrar Solicitud</button>
         </form>
+      );
+    }
+
+    function ListaSolicitudes(props) {
+      var usuario = props.usuario;
+      var sSol = React.useState([]); var solicitudes = sSol[0]; var setSolicitudes = sSol;
+
+      React.useEffect(function() {
+        if (!supabaseClient) return;
+        var query = supabaseClient.from('solicitudes_culto').select('*, iglesias(nombre)');
+        
+        if (usuario.rol !== 'administrador') {
+          query = query.eq('iglesia_id', usuario.iglesia_id);
+        }
+        
+        query.then(function(res) {
+          if (res.data) setSolicitudes(res.data);
+        });
+      }, [usuario]);
+
+      return (
+        <div>
+          <h3>Lista de Solicitudes Registradas</h3>
+          {solicitudes.length === 0 ? <p>No hay solicitudes registradas para esta iglesia.</p> : (
+            solicitudes.map(function(s) {
+              return (
+                <div key={s.id} className="card">
+                  <strong>Solicitante:</strong> {s.solicitante}<br/>
+                  <strong>Oficio:</strong> {s.tipo_oficio}<br/>
+                  <strong>Antepasados/Intención:</strong> {s.antepasados}<br/>
+                  <small><strong>Iglesia:</strong> {s.iglesias ? s.iglesias.nombre : 'General'}</small>
+                </div>
+              );
+            })
+          )}
+        </div>
       );
     }
 
     function GestionAdmin(props) {
       var iglesias = props.iglesias;
+      var setIglesias = props.setIglesias;
       var alActualizar = props.alActualizar;
 
-      var sNuevaIgl = React.useState('');
-      var nuevaIglesia = sNuevaIgl[0]; var setNuevaIglesia = sNuevaIgl[1];
+      var sNuevaIgl = React.useState(''); var nuevaIglesia = sNuevaIgl[0]; var setNuevaIglesia = sNuevaIgl;
+      var sNombreResp = React.useState(''); var nombreResp = sNombreResp[0]; var setNombreResp = sNombreResp;
+      var sUserResp = React.useState(''); var userResp = sUserResp[0]; var setUserResp = sUserResp;
+      var sPassResp = React.useState(''); var passResp = sPassResp[0]; var setPassResp = sPassResp;
+      var sIglResp = React.useState(''); var iglesiaRespId = sIglResp[0]; var setIglesiaRespId = sIglResp;
 
-      var sNombreResp = React.useState('');
-      var nombreResp = sNombreResp[0]; var setNombreResp = sNombreResp[1];
-
-      var sUserResp = React.useState('');
-      var userResp = sUserResp[0]; var setUserResp = sUserResp[1];
-
-      var sPassResp = React.useState('');
-      var passResp = sPassResp[0]; var setPassResp = sPassResp[1];
-
-      var sIglResp = React.useState((iglesias[0] && iglesias[0].id) || '');
-      var iglesiaRespId = sIglResp[0]; var setIglesiaRespId = sIglResp[1];
+      React.useEffect(function() {
+        if (iglesias.length > 0 && !iglesiaRespId) {
+          setIglesiaRespId(iglesias[0].id);
+        }
+      }, [iglesias]);
 
       function agregarIglesia(e) {
         e.preventDefault();
-        if (!supabaseClient) return;
-        supabaseClient.from('iglesias').insert([{ nombre: nuevaIglesia }]).then(function() {
-          setNuevaIglesia('');
-          alert('Iglesia registrada');
-          alActualizar();
-        });
+        var nombreLimpio = nuevaIglesia.trim();
+        if (!nombreLimpio || !supabaseClient) return;
+
+        supabaseClient
+          .from('iglesias')
+          .insert([{ nombre: nombreLimpio }])
+          .select()
+          .single()
+          .then(function(res) {
+            if (res.data) {
+              setNuevaIglesia('');
+              alert('Iglesia registrada correctamente: ' + res.data.nombre);
+              setIglesiaRespId(res.data.id);
+              if (alActualizar) alActualizar();
+            } else if (res.error) {
+              alert('Error al agregar iglesia: ' + res.error.message);
+            }
+          })
+          .catch(function(err) { alert('Error: ' + err.message); });
       }
 
       function agregarResponsable(e) {
         e.preventDefault();
-        if (!supabaseClient) return;
+        var idFinalIglesia = iglesiaRespId || (iglesias[0] && iglesias[0].id);
+        if (!idFinalIglesia || !supabaseClient) {
+          alert('Por favor registra o selecciona una iglesia primero');
+          return;
+        }
+
         supabaseClient.from('usuarios_sistema').insert([{
-          nombre: nombreResp,
-          usuario: userResp,
-          password: passResp,
+          nombre: nombreResp.trim(),
+          usuario: userResp.trim(),
+          password: passResp.trim(),
           rol: 'responsable',
-          iglesia_id: iglesiaRespId
-        }]).then(function() {
-          setNombreResp(''); setUserResp(''); setPassResp('');
-          alert('Responsable registrado con éxito');
+          iglesia_id: idFinalIglesia
+        }]).then(function(res) {
+          if (res.error) {
+            alert('Error al guardar responsable: ' + res.error.message);
+          } else {
+            setNombreResp(''); setUserResp(''); setPassResp('');
+            alert('Usuario Responsable registrado con éxito');
+          }
         });
       }
 
@@ -725,16 +250,17 @@
           <form onSubmit={agregarResponsable} className="card">
             <span className="label">Nombre Completo:</span>
             <input className="input-field" placeholder="Ej: Pedro Gonzales" value={nombreResp} onChange={function(e){ setNombreResp(e.target.value); }} required />
-            
             <span className="label">Nombre de Usuario:</span>
-            <input className="input-field" placeholder="Ej: pedro_lapaz" value={userResp} onChange={function(e){ setUserResp(e.target.value); }} required />
-            
+            <input className="input-field" placeholder="Ej: admin_paz" value={userResp} onChange={function(e){ setUserResp(e.target.value); }} required />
             <span className="label">Contraseña:</span>
             <input className="input-field" type="password" placeholder="Escriba la contraseña" value={passResp} onChange={function(e){ setPassResp(e.target.value); }} required />
-            
             <span className="label">Asignar Iglesia:</span>
             <select className="input-field" value={iglesiaRespId} onChange={function(e){ setIglesiaRespId(e.target.value); }}>
-              {iglesias.map(function(i){ return <option key={i.id} value={i.id}>{i.nombre}</option>; })}
+              {iglesias.length === 0 ? (
+                <option value="">Sin iglesias registradas</option>
+              ) : (
+                iglesias.map(function(i){ return <option key={i.id} value={i.id}>{i.nombre}</option>; })
+              )}
             </select>
             <button className="btn-primary" type="submit">Crear Usuario Responsable</button>
           </form>
@@ -742,8 +268,62 @@
       );
     }
 
-    var container = document.getElementById('root');
-    var root = ReactDOM.createRoot(container);
+    function App() {
+      var sUser = React.useState(null); var usuario = sUser[0]; var setUsuario = sUser;
+      var sVista = React.useState('solicitudes'); var vista = sVista[0]; var setVista = sVista;
+      var sIgl = React.useState([]); var iglesias = sIgl[0]; var setIglesias = sIgl;
+
+      function cargarIglesias() {
+        if (!supabaseClient) return;
+        supabaseClient.from('iglesias').select('*').then(function(res) {
+          if (res.data) setIglesias(res.data);
+        });
+      }
+
+      React.useEffect(function() {
+        cargarIglesias();
+      }, []);
+
+      if (!usuario) {
+        return <Login setUsuario={setUsuario} />;
+      }
+
+      return (
+        <div className="container">
+          <div className="header-user">
+            <div>
+              <strong>Usuario:</strong> {usuario.nombre}<br/>
+              <small><strong>Rol:</strong> {usuario.rol}</small>
+            </div>
+            <button onClick={function(){ setUsuario(null); }} style={{background: '#d9534f', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer'}}>
+              Cerrar Sesión
+            </button>
+          </div>
+
+          <div className="nav-bar">
+            <button className={'nav-btn ' + (vista === 'solicitudes' ? 'active' : '')} onClick={function(){ setVista('solicitudes'); }}>
+              Solicitudes
+            </button>
+            <button className={'nav-btn ' + (vista === 'formulario' ? 'active' : '')} onClick={function(){ setVista('formulario'); }}>
+              Nueva Solicitud
+            </button>
+            {usuario.rol === 'administrador' && (
+              <button className={'nav-btn ' + (vista === 'admin' ? 'active' : '')} onClick={function(){ setVista('admin'); }}>
+                Gestión Admin
+              </button>
+            )}
+          </div>
+
+          {vista === 'solicitudes' && <ListaSolicitudes usuario={usuario} />}
+          {vista === 'formulario' && <FormularioSolicitud usuario={usuario} iglesias={iglesias} />}
+          {vista === 'admin' && usuario.rol === 'administrador' && (
+            <GestionAdmin iglesias={iglesias} setIglesias={setIglesias} alActualizar={cargarIglesias} />
+          )}
+        </div>
+      );
+    }
+
+    var root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
 </body>
