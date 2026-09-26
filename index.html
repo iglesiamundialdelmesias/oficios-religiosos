@@ -2,42 +2,60 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
   <meta name="theme-color" content="#1f4d3a">
+  <meta name="description" content="Gestión de antepasados, solicitudes, cultos y notificaciones — Sorei Saishi">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sorei Saishi">
+  <meta name="format-detection" content="telephone=no">
   <title>Sorei Saishi — Gestión de Oficios Religiosos</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- ============ LOGIN ============ -->
 <div id="loginView" class="login-shell">
   <div class="login-card">
     <div class="brand-mark">SS</div>
     <h1>Sorei Saishi</h1>
     <p>Gestión de antepasados, solicitudes, cultos y notificaciones.</p>
-    <label>Correo electrónico</label>
-    <input id="loginEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email">
-    <label>Contraseña</label>
-    <input id="loginPassword" type="password" placeholder="Contraseña" autocomplete="current-password">
-    <button class="btn primary full" id="supabaseLoginBtn">Ingresar</button>
-    <button class="btn secondary full" id="supabaseSignupBtn">Crear cuenta</button>
+    <label for="loginEmail">Correo electrónico</label>
+    <input id="loginEmail" type="email" inputmode="email" autocomplete="email"
+           autocapitalize="off" spellcheck="false" placeholder="correo@ejemplo.com">
+    <label for="loginPassword">Contraseña</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Contraseña">
+    <button class="btn primary full" id="supabaseLoginBtn" type="button">Ingresar</button>
+    <button class="btn secondary full" id="supabaseSignupBtn" type="button">Crear cuenta</button>
     <small>La cuenta, roles, departamentos, solicitudes y notificaciones se almacenan en Supabase.</small>
-  </div>iv>
+  </div>
 </div>
 
+<!-- ============ APP ============ -->
 <div id="app" class="app hidden">
   <header class="topbar">
-    <button class="icon-btn" onclick="toggleSidebar()" aria-label="Menú">☰</button>
-    <div>
+    <button class="icon-btn" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+    <div class="topbar-title">
       <strong id="topTitle">Inicio</strong>
       <small id="topDept"></small>
     </div>
-    <button class="icon-btn notification-btn" onclick="showView('notificaciones')">🔔<span id="notifBadge">0</span></button>
+    <button class="icon-btn notification-btn" onclick="showView('notificaciones')" aria-label="Ver notificaciones">
+      🔔<span id="notifBadge">0</span>
+    </button>
   </header>
 
-  <aside id="sidebar" class="sidebar">
-    <div class="side-brand"><span class="brand-mark small">SS</span><div><b>Sorei Saishi</b><small id="sideRole"></small></div></div>
+  <aside id="sidebar" class="sidebar" aria-label="Menú principal">
+    <div class="side-brand">
+      <span class="brand-mark small">SS</span>
+      <div><b>Sorei Saishi</b><small id="sideRole"></small></div>
+    </div>
     <nav>
       <button data-view="inicio" onclick="showView('inicio')">🏠 Inicio</button>
       <button data-view="antepasados" onclick="showView('antepasados')">🌳 Antepasados</button>
+      <button data-view="linaje" onclick="showView('linaje')">🧬 Linaje</button>
       <button data-view="solicitudes" onclick="showView('solicitudes')">📝 Solicitudes</button>
       <button data-view="cultos" onclick="showView('cultos')">📅 Cultos</button>
       <button data-view="notificaciones" onclick="showView('notificaciones')">🔔 Notificaciones</button>
@@ -46,11 +64,17 @@
     </nav>
     <button class="logout" onclick="logout()">Salir</button>
   </aside>
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <main class="content">
+    <!-- INICIO -->
     <section id="inicio" class="view active">
       <div class="hero">
-        <div><span class="eyebrow">Panel de gestión</span><h2 id="welcome">Bienvenido</h2><p>Administra registros, solicitudes y fechas de los oficios desde el celular.</p></div>
+        <div>
+          <span class="eyebrow">Panel de gestión</span>
+          <h2 id="welcome">Bienvenido</h2>
+          <p>Administra registros, solicitudes y fechas de los oficios desde el celular.</p>
+        </div>
         <button class="btn primary" onclick="showView('solicitudes')">+ Nueva solicitud</button>
       </div>
       <div class="stats">
@@ -60,58 +84,155 @@
         <div class="stat"><span>Notificaciones</span><b id="statNotif">0</b></div>
       </div>
       <div class="grid-2">
-        <div class="card"><div class="card-head"><h3>Próximos cultos</h3><button class="link" onclick="showView('cultos')">Ver calendario</button></div><div id="homeCultos"></div></div>
-        <div class="card"><div class="card-head"><h3>Alertas importantes</h3><button class="link" onclick="showView('notificaciones')">Ver todas</button></div><div id="homeAlerts"></div></div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Próximos cultos</h3>
+            <button class="link" onclick="showView('cultos')">Ver calendario</button>
+          </div>
+          <div id="homeCultos"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Alertas importantes</h3>
+            <button class="link" onclick="showView('notificaciones')">Ver todas</button>
+          </div>
+          <div id="homeAlerts"></div>
+        </div>
       </div>
     </section>
 
+    <!-- ANTEPASADOS -->
     <section id="antepasados" class="view">
-      <div class="page-head"><div><span class="eyebrow">Sorei Saishi</span><h2>Antepasados</h2></div><button class="btn primary" onclick="openModal('ancestor')">+ Registrar</button></div>
-      <div class="filters"><input id="ancestorSearch" oninput="renderAncestors()" placeholder="Buscar por nombre o familia…"><select id="ancestorRelFilter" onchange="renderAncestors()"><option value="">Todos los parentescos</option><option>Padre/Madre</option><option>Abuelo/Abuela</option><option>Tío/Tía</option><option>Hermano/a</option><option>Hijo/a</option><option>Nieto/a</option><option>Cónyuge</option><option>Otro</option></select></div>
+      <div class="page-head">
+        <div><span class="eyebrow">Sorei Saishi</span><h2>Antepasados</h2></div>
+        <button class="btn primary" onclick="openModal('ancestor')">+ Registrar</button>
+      </div>
+      <div class="filters">
+        <input id="ancestorSearch" oninput="renderAncestors()" placeholder="Buscar por nombre o familia…"
+               autocomplete="off" spellcheck="false">
+        <select id="ancestorRelFilter" onchange="renderAncestors()">
+          <option value="">Todos los parentescos</option>
+          <option>Padre/Madre</option><option>Abuelo/Abuela</option><option>Tío/Tía</option>
+          <option>Hermano/a</option><option>Hijo/a</option><option>Nieto/a</option>
+          <option>Cónyuge</option><option>Otro</option>
+        </select>
+      </div>
       <div id="ancestorList" class="list"></div>
     </section>
 
+    <!-- LINAJE -->
+    <section id="linaje" class="view">
+      <div class="page-head">
+        <div><span class="eyebrow">Organización familiar</span><h2>Linaje</h2></div>
+      </div>
+      <div class="info-banner">
+        Recomendación: organizar hasta el <b>segundo grado</b> de parentesco, extensible al <b>cónyuge</b>.
+        Puedes registrar grados mayores con autorización.
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Linaje directo</h3>
+          <div id="linajeDirecto" class="list"></div>
+        </div>
+        <div class="card">
+          <h3>Linaje indirecto</h3>
+          <div id="linajeIndirecto" class="list"></div>
+        </div>
+        <div class="card">
+          <h3>Linaje del cónyuge</h3>
+          <div id="linajeConyuge" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOLICITUDES -->
     <section id="solicitudes" class="view">
-      <div class="page-head"><div><span class="eyebrow">Oficios religiosos</span><h2>Solicitudes</h2></div><button class="btn primary" onclick="openModal('request')">+ Solicitar oficio</button></div>
+      <div class="page-head">
+        <div><span class="eyebrow">Oficios religiosos</span><h2>Solicitudes</h2></div>
+        <button class="btn primary" onclick="openModal('request')">+ Solicitar oficio</button>
+      </div>
       <div class="chips">
-        <button class="chip active" onclick="filterRequests('')">Todas</button><button class="chip" onclick="filterRequests('Pendiente')">Pendientes</button><button class="chip" onclick="filterRequests('Aprobado')">Aprobadas</button><button class="chip" onclick="filterRequests('Revisión')">En revisión</button>
+        <button class="chip active" onclick="filterRequests('', event)">Todas</button>
+        <button class="chip" onclick="filterRequests('Pendiente', event)">Pendientes</button>
+        <button class="chip" onclick="filterRequests('Aprobado', event)">Aprobadas</button>
+        <button class="chip" onclick="filterRequests('Revisión', event)">En revisión</button>
+        <button class="chip" onclick="filterRequests('Rechazado', event)">Rechazadas</button>
       </div>
       <div id="requestList" class="list"></div>
     </section>
 
+    <!-- CULTOS -->
     <section id="cultos" class="view">
-      <div class="page-head"><div><span class="eyebrow">Calendario</span><h2>Cultos y fechas</h2></div></div>
-      <div class="info-banner">Las fechas se muestran según las reglas descritas en las páginas proporcionadas. El responsable puede ajustarlas cuando exista una programación oficial.</div>
+      <div class="page-head">
+        <div><span class="eyebrow">Calendario</span><h2>Cultos y fechas</h2></div>
+      </div>
+      <div class="info-banner">
+        Las fechas se calculan según las reglas descritas en el material. El Administrador general
+        puede configurar el <b>Culto Mensual de Agradecimiento</b> para ajustar el primer domingo.
+      </div>
       <div id="cultoList" class="calendar-list"></div>
     </section>
 
+    <!-- NOTIFICACIONES -->
     <section id="notificaciones" class="view">
-      <div class="page-head"><div><span class="eyebrow">Avisos</span><h2>Notificaciones</h2></div><button class="btn secondary" onclick="markNotificationsRead()">Marcar leídas</button></div>
+      <div class="page-head">
+        <div><span class="eyebrow">Avisos</span><h2>Notificaciones</h2></div>
+        <button class="btn secondary" onclick="markNotificationsRead()">Marcar leídas</button>
+      </div>
       <div id="notificationList" class="list"></div>
     </section>
 
+    <!-- DEPARTAMENTO -->
     <section id="departamento" class="view">
-      <div class="page-head"><div><span class="eyebrow">Configuración local</span><h2>Departamento de iglesia</h2></div></div>
+      <div class="page-head">
+        <div><span class="eyebrow">Configuración</span><h2>Departamento de iglesia</h2></div>
+      </div>
       <div class="card form-card">
-        <label>Nombre del departamento de iglesia</label>
+        <label for="deptName">Nombre del departamento de iglesia</label>
         <input id="deptName" placeholder="Ej.: Departamento de Iglesia Santa Cruz">
-        <label>Responsable</label><input id="deptResponsible" placeholder="Nombre del responsable">
-        <label>Teléfono / contacto</label><input id="deptPhone" placeholder="+591…">
-        <label>Horario de atención</label><input id="deptHours" placeholder="Lunes a viernes, 09:00–17:00">
+        <label for="deptResponsible">Responsable</label>
+        <input id="deptResponsible" placeholder="Nombre del responsable">
+        <label for="deptPhone">Teléfono / contacto</label>
+        <input id="deptPhone" type="tel" inputmode="tel" placeholder="+591…">
+        <label for="deptHours">Horario de atención</label>
+        <input id="deptHours" placeholder="Lunes a viernes, 09:00–17:00">
         <button class="btn primary" onclick="saveDepartment()">Guardar cambios</button>
       </div>
     </section>
 
+    <!-- USUARIOS -->
     <section id="usuarios" class="view admin-only-section">
-      <div class="page-head"><div><span class="eyebrow">Administración</span><h2>Usuarios y roles</h2></div><button class="btn primary" onclick="openModal('user')">+ Usuario</button></div>
-      <div class="card"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Departamento</th><th>Estado</th></tr></thead><tbody id="userTable"></tbody></table></div>
+      <div class="page-head">
+        <div><span class="eyebrow">Administración</span><h2>Usuarios y roles</h2></div>
+        <button class="btn primary" onclick="openModal('user')">+ Nuevo usuario</button>
+      </div>
+      <div class="filters">
+        <input id="userSearch" oninput="renderUsers()" placeholder="Buscar por nombre o correo…" autocomplete="off">
+        <select id="userRoleFilter" onchange="renderUsers()">
+          <option value="">Todos los roles</option>
+          <option value="ADMIN_GENERAL">Administrador general</option>
+          <option value="RESPONSABLE_IGLESIA">Responsable de iglesia</option>
+        </select>
+      </div>
+      <div id="userList" class="list"></div>
     </section>
   </main>
 </div>
 
-<div id="modal" class="modal hidden"><div class="modal-backdrop" onclick="closeModal()"></div><div class="modal-card"><button class="close" onclick="closeModal()">×</button><div id="modalContent"></div></div></div>
-<div id="toast" class="toast"></div>
+<!-- MODAL -->
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div class="modal-card">
+    <button class="close" onclick="closeModal()" aria-label="Cerrar">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- ============ SCRIPTS (orden importante) ============ -->
 <script src="supabase-config.js"></script>
+<script src="app.js"></script>
 <script type="module" src="app.supabase.js"></script>
 </body>
 </html>
