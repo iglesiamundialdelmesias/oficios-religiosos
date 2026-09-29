@@ -1,7 +1,7 @@
 /* ============================================================
    Sorei Saishi — Integración con Supabase
-   Este archivo carga app.js (lógica base) y luego sobrescribe
-   las funciones que necesitan hablar con Supabase.
+   Carga app.js (lógica base) y sobrescribe funciones que
+   necesitan hablar con Supabase.
    ============================================================ */
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -35,7 +35,6 @@ else {
   const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
   window.__supabase = supabase;
 
-  // Cargar app.js primero, luego enganchar
   const appScript = document.createElement('script');
   appScript.src = './app.js';
   appScript.onload = () => wireAuth();
@@ -96,9 +95,11 @@ else {
     if (authError || !auth.user) return null;
 
     const user = auth.user;
+
+    // Especificamos la FK para evitar el error de "multiple relationships"
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('*, departments(*)')
+      .select('*, department:departments!profiles_department_id_fkey(*)')
       .eq('id', user.id)
       .single();
 
@@ -108,13 +109,13 @@ else {
     state.user = {
       name: profile.full_name,
       role: profile.role === 'ADMIN_GENERAL' ? 'admin' : 'responsable',
-      dept: profile.departments?.name || 'Sin departamento'
+      dept: profile.department?.name || 'Sin departamento'
     };
     state.dept = {
-      name: profile.departments?.name || 'Sin departamento',
-      responsible: profile.departments?.responsible_user_id === user.id ? profile.full_name : '',
-      phone: profile.departments?.phone || '',
-      hours: profile.departments?.hours || ''
+      name: profile.department?.name || 'Sin departamento',
+      responsible: profile.department?.responsible_user_id === user.id ? profile.full_name : '',
+      phone: profile.department?.phone || '',
+      hours: profile.department?.hours || ''
     };
 
     const [anc, req, notif, svc] = await Promise.all([
